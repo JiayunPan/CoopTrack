@@ -9,6 +9,7 @@ from backend.ngos.ngo_routes import ngos
 from backend.students.student_routes import students
 from backend.positions.position_routes import positions
 from backend.applications.application_routes import applications
+from backend.skills.skill_routes import skills
 
 
 def create_app():
@@ -43,5 +44,6 @@ def create_app():
     app.register_blueprint(students)
     app.register_blueprint(positions)
     app.register_blueprint(applications)
+    app.register_blueprint(skills)
 
     return app
