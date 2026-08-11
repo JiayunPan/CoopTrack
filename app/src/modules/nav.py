@@ -9,6 +9,24 @@ ROLE_HOME_PAGES = {
     "administrator": "pages/20_Admin_Home.py",
 }
 
+ROLE_FEATURE_PAGES = {
+    "student": [
+        ("pages/01_Position_Search.py", "Find positions", "🔎"),
+        ("pages/02_Application_Tracker.py", "Application tracker", "📋"),
+        ("pages/03_Upcoming_Deadlines.py", "Upcoming deadlines", "📅"),
+    ],
+    "employer": [
+        ("pages/11_Position_Management.py", "Position management", "✍️"),
+        ("pages/12_Applicant_Review.py", "Applicant review", "🧩"),
+        ("pages/13_Hiring_Pipeline.py", "Hiring pipeline", "🚦"),
+    ],
+    "administrator": [
+        ("pages/21_Report_Review.py", "Report review", "🚩"),
+        ("pages/22_Employer_Verification.py", "Employer verification", "✅"),
+        ("pages/23_Student_Skill_Management.py", "Students & skills", "🧹"),
+    ],
+}
+
 
 def require_role(expected_role: str) -> None:
     """Redirect unauthenticated or mismatched personas to a safe page."""
@@ -23,13 +41,14 @@ def require_role(expected_role: str) -> None:
 
 
 def _logout() -> None:
+    """Clear the simulated persona session and return to persona selection."""
     for key in ("authenticated", "role", "first_name", "user_id", "employer_id", "admin_id"):
         st.session_state.pop(key, None)
     st.switch_page("Home.py")
 
 
 def SideBarLinks(show_home: bool = False) -> None:
-    """Render navigation links appropriate for the active simulated persona."""
+    """Render only the navigation available to the active persona."""
     st.sidebar.image("assets/logo.png", width=170)
 
     if show_home:
@@ -42,17 +61,25 @@ def SideBarLinks(show_home: bool = False) -> None:
     role = st.session_state.get("role")
     if authenticated and role in ROLE_HOME_PAGES:
         st.sidebar.caption(f"Signed in as {st.session_state.get('first_name', 'Guest')}")
-        labels = {
+
+        dashboard_labels = {
             "student": ("Student dashboard", "🎓"),
             "employer": ("Employer dashboard", "💼"),
             "administrator": ("Admin dashboard", "🛡️"),
         }
-        label, icon = labels[role]
-        st.sidebar.page_link(ROLE_HOME_PAGES[role], label=label, icon=icon)
+        dashboard_label, dashboard_icon = dashboard_labels[role]
+        st.sidebar.page_link(
+            ROLE_HOME_PAGES[role],
+            label=dashboard_label,
+            icon=dashboard_icon,
+        )
 
+        st.sidebar.markdown("#### Workspace")
+        for page, label, icon in ROLE_FEATURE_PAGES[role]:
+            st.sidebar.page_link(page, label=label, icon=icon)
+
+    st.sidebar.divider()
     st.sidebar.page_link("pages/30_About.py", label="About CoopTrack", icon="ℹ️")
 
-    if authenticated:
-        st.sidebar.divider()
-        if st.sidebar.button("Log out", use_container_width=True):
-            _logout()
+    if authenticated and st.sidebar.button("Log out", width="stretch"):
+        _logout()
