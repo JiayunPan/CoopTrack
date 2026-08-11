@@ -10,6 +10,7 @@ from backend.students.student_routes import students
 from backend.positions.position_routes import positions
 from backend.applications.application_routes import applications
 from backend.skills.skill_routes import skills
+from backend.admin.admin_routes import admin
 
 
 def create_app():
@@ -45,5 +46,6 @@ def create_app():
     app.register_blueprint(positions)
     app.register_blueprint(applications)
     app.register_blueprint(skills)
+    app.register_blueprint(admin)
 
     return app
