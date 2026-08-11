@@ -1,125 +1,58 @@
-# Idea borrowed from https://github.com/fsmosca/sample-streamlit-authenticator
-
-# This file has functions to add links to the left sidebar based on the user's role.
+"""Role-aware sidebar navigation for the CoopTrack Streamlit application."""
 
 import streamlit as st
 
 
-# ---- General ----------------------------------------------------------------
-
-def home_nav():
-    st.sidebar.page_link("Home.py", label="Home", icon="🏠")
-
-
-def about_page_nav():
-    st.sidebar.page_link("pages/30_About.py", label="About", icon="🧠")
+ROLE_HOME_PAGES = {
+    "student": "pages/00_Student_Home.py",
+    "employer": "pages/10_Employer_Home.py",
+    "administrator": "pages/20_Admin_Home.py",
+}
 
 
-# ---- Role: pol_strat_advisor ------------------------------------------------
-
-def pol_strat_home_nav():
-    st.sidebar.page_link(
-        "pages/00_Pol_Strat_Home.py", label="Political Strategist Home", icon="👤"
-    )
-
-
-def world_bank_viz_nav():
-    st.sidebar.page_link(
-        "pages/01_World_Bank_Viz.py", label="World Bank Visualization", icon="🏦"
-    )
-
-
-def map_demo_nav():
-    st.sidebar.page_link("pages/02_Map_Demo.py", label="Map Demonstration", icon="🗺️")
-
-
-# ---- Role: usaid_worker -----------------------------------------------------
-
-def usaid_worker_home_nav():
-    st.sidebar.page_link(
-        "pages/10_USAID_Worker_Home.py", label="USAID Worker Home", icon="🏠"
-    )
-
-
-def ngo_directory_nav():
-    st.sidebar.page_link("pages/14_NGO_Directory.py", label="NGO Directory", icon="📁")
-
-
-def add_ngo_nav():
-    st.sidebar.page_link("pages/15_Add_NGO.py", label="Add New NGO", icon="➕")
-
-
-def prediction_nav():
-    st.sidebar.page_link(
-        "pages/11_Prediction.py", label="Regression Prediction", icon="📈"
-    )
-
-
-def api_test_nav():
-    st.sidebar.page_link("pages/12_API_Test.py", label="Test the API", icon="🛜")
-
-
-def classification_nav():
-    st.sidebar.page_link(
-        "pages/13_Classification.py", label="Classification Demo", icon="🌺"
-    )
-
-
-# ---- Role: administrator ----------------------------------------------------
-
-def admin_home_nav():
-    st.sidebar.page_link("pages/20_Admin_Home.py", label="System Admin", icon="🖥️")
-
-
-def ml_model_mgmt_nav():
-    st.sidebar.page_link(
-        "pages/21_ML_Model_Mgmt.py", label="ML Model Management", icon="🏢"
-    )
-
-
-# ---- Sidebar assembly -------------------------------------------------------
-
-def SideBarLinks(show_home=False):
-    """
-    Renders sidebar navigation links based on the logged-in user's role.
-    The role is stored in st.session_state when the user logs in on Home.py.
-    """
-
-    # Logo appears at the top of the sidebar on every page
-    st.sidebar.image("assets/logo.png", width=150)
-
-    # If no one is logged in, send them to the Home (login) page
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
+def require_role(expected_role: str) -> None:
+    """Redirect unauthenticated or mismatched personas to a safe page."""
+    if not st.session_state.get("authenticated", False):
         st.switch_page("Home.py")
+    if st.session_state.get("role") != expected_role:
+        st.error("This page is not available for the selected persona.")
+        destination = ROLE_HOME_PAGES.get(st.session_state.get("role"), "Home.py")
+        if st.button("Return to my dashboard", type="primary"):
+            st.switch_page(destination)
+        st.stop()
+
+
+def _logout() -> None:
+    for key in ("authenticated", "role", "first_name", "user_id", "employer_id", "admin_id"):
+        st.session_state.pop(key, None)
+    st.switch_page("Home.py")
+
+
+def SideBarLinks(show_home: bool = False) -> None:
+    """Render navigation links appropriate for the active simulated persona."""
+    st.sidebar.image("assets/logo.png", width=170)
 
     if show_home:
-        home_nav()
+        st.sidebar.page_link("Home.py", label="Choose a persona", icon="🏠")
 
-    if st.session_state["authenticated"]:
+    authenticated = st.session_state.get("authenticated", False)
+    if not authenticated and not show_home:
+        st.switch_page("Home.py")
 
-        if st.session_state["role"] == "pol_strat_advisor":
-            pol_strat_home_nav()
-            world_bank_viz_nav()
-            map_demo_nav()
+    role = st.session_state.get("role")
+    if authenticated and role in ROLE_HOME_PAGES:
+        st.sidebar.caption(f"Signed in as {st.session_state.get('first_name', 'Guest')}")
+        labels = {
+            "student": ("Student dashboard", "🎓"),
+            "employer": ("Employer dashboard", "💼"),
+            "administrator": ("Admin dashboard", "🛡️"),
+        }
+        label, icon = labels[role]
+        st.sidebar.page_link(ROLE_HOME_PAGES[role], label=label, icon=icon)
 
-        if st.session_state["role"] == "usaid_worker":
-            usaid_worker_home_nav()
-            ngo_directory_nav()
-            add_ngo_nav()
-            prediction_nav()
-            api_test_nav()
-            classification_nav()
+    st.sidebar.page_link("pages/30_About.py", label="About CoopTrack", icon="ℹ️")
 
-        if st.session_state["role"] == "administrator":
-            admin_home_nav()
-            ml_model_mgmt_nav()
-
-    # About link appears at the bottom for all roles
-    about_page_nav()
-
-    if st.session_state["authenticated"]:
-        if st.sidebar.button("Logout"):
-            del st.session_state["role"]
-            del st.session_state["authenticated"]
-            st.switch_page("Home.py")
+    if authenticated:
+        st.sidebar.divider()
+        if st.sidebar.button("Log out", use_container_width=True):
+            _logout()

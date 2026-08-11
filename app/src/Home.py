@@ -1,72 +1,100 @@
-##################################################
-# This is the main/entry-point file for the
-# sample application for your project
-##################################################
+"""CoopTrack landing page and simulated persona sign-in."""
 
-# Set up basic logging infrastructure
 import logging
-logging.basicConfig(format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-# import the main streamlit library as well
-# as SideBarLinks function from src/modules folder
 import streamlit as st
+
 from modules.nav import SideBarLinks
 
-# streamlit supports regular and wide layout (how the controls
-# are organized/displayed on the screen).
-st.set_page_config(layout='wide')
 
-# If a user is at this page, we assume they are not
-# authenticated.  So we change the 'authenticated' value
-# in the streamlit session_state to false.
-st.session_state['authenticated'] = False
+logging.basicConfig(
+    format="%(filename)s:%(lineno)s:%(levelname)s -- %(message)s",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
 
-# Use the SideBarLinks function from src/modules/nav.py to control
-# the links displayed on the left-side panel.
-# IMPORTANT: ensure src/.streamlit/config.toml sets
-# showSidebarNavigation = false in the [client] section
+st.set_page_config(
+    page_title="CoopTrack",
+    page_icon="🧭",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# Visiting the main page signs out the previous simulated persona.
+for key in ("authenticated", "role", "first_name", "user_id", "employer_id", "admin_id"):
+    st.session_state.pop(key, None)
+st.session_state.authenticated = False
+
 SideBarLinks(show_home=True)
+logger.info("Loading the CoopTrack landing page")
 
-# ***************************************************
-#    The major content of this page
-# ***************************************************
+logo_col, copy_col = st.columns([1, 2], vertical_alignment="center")
+with logo_col:
+    st.image("assets/logo.png", width=300)
 
-logger.info("Loading the Home page of the app")
-st.title('CS 3200 Project Template')
-st.write('#### Hi! As which user would you like to log in?')
+with copy_col:
+    st.title("Your co-op search, organized.")
+    st.markdown(
+        """
+        CoopTrack brings job discovery, application progress, recruiting workflows,
+        and platform administration into one reliable workspace. Choose a sample
+        persona below to explore the experience—no account creation is required.
+        """
+    )
+    st.caption("CS 3200 · Summer B 2026 · Team Thinking")
 
-# For each of the user personas for which we are implementing
-# functionality, we put a button on the screen that the user
-# can click to MIMIC logging in as that mock user.
+st.divider()
+st.subheader("Choose a persona")
 
-if st.button("Act as John, a Political Strategy Advisor",
-             type='primary',
-             use_container_width=True):
-    # when user clicks the button, they are now considered authenticated
-    st.session_state['authenticated'] = True
-    # we set the role of the current user
-    st.session_state['role'] = 'pol_strat_advisor'
-    # we add the first name of the user (so it can be displayed on
-    # subsequent pages).
-    st.session_state['first_name'] = 'John'
-    # finally, we ask streamlit to switch to another page, in this case, the
-    # landing page for this particular user type
-    logger.info("Logging in as Political Strategy Advisor Persona")
-    st.switch_page('pages/00_Pol_Strat_Home.py')
+student_col, employer_col, admin_col = st.columns(3)
 
-if st.button('Act as Mohammad, a USAID Worker',
-             type='primary',
-             use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'usaid_worker'
-    st.session_state['first_name'] = 'Mohammad'
-    st.switch_page('pages/10_USAID_Worker_Home.py')
+with student_col:
+    with st.container(border=True):
+        st.markdown("### 🎓 Sofia")
+        st.caption("Student applicant")
+        st.write("Search fitting roles, save opportunities, and keep every application deadline and status in one place.")
+        if st.button("Continue as Sofia", type="primary", use_container_width=True):
+            st.session_state.update(
+                authenticated=True,
+                role="student",
+                first_name="Sofia",
+                user_id=1,
+            )
+            st.switch_page("pages/00_Student_Home.py")
 
-if st.button('Act as System Administrator',
-             type='primary',
-             use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'administrator'
-    st.session_state['first_name'] = 'SysAdmin'
-    st.switch_page('pages/20_Admin_Home.py')
+with employer_col:
+    with st.container(border=True):
+        st.markdown("### 💼 Marcus")
+        st.caption("Employer / recruiter")
+        st.write("Publish co-op roles, review skill-matched applicants, and move candidates through a clear hiring pipeline.")
+        if st.button("Continue as Marcus", type="primary", use_container_width=True):
+            st.session_state.update(
+                authenticated=True,
+                role="employer",
+                first_name="Marcus",
+                employer_id=1,
+            )
+            st.switch_page("pages/10_Employer_Home.py")
+
+with admin_col:
+    with st.container(border=True):
+        st.markdown("### 🛡️ Nikki")
+        st.caption("System administrator")
+        st.write("Verify employers, review reported postings, manage students, and maintain a trustworthy skill taxonomy.")
+        if st.button("Continue as Nikki", type="primary", use_container_width=True):
+            st.session_state.update(
+                authenticated=True,
+                role="administrator",
+                first_name="Nikki",
+                admin_id=1,
+            )
+            st.switch_page("pages/20_Admin_Home.py")
+
+st.divider()
+metric_one, metric_two, metric_three, metric_four = st.columns(4)
+metric_one.metric("Open roles", "11")
+metric_two.metric("Partner employers", "35")
+metric_three.metric("Student profiles", "40")
+metric_four.metric("Tracked applications", "75")
+
+st.info("These counts come from CoopTrack's current demonstration dataset. Live feature pages will connect through the Flask REST API.")
