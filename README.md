@@ -1,70 +1,212 @@
-# Summer B 2026 CS 3200 Project Template
+# CoopTrack
 
-This is a template repo for Dr. Fontenot's Summer B 2026 CS 3200 Course Project.
+CoopTrack is a three-tier database application for students,
+employers, and system administrators. It centralizes position discovery,
+application tracking, recruiting workflows, employer verification, and platform
+moderation in one database-backed application.
 
-It includes most of the infrastructure setup (containers), sample databases, and example UI pages. Explore it fully and ask questions!
+This project was developed for **CS 3200: Database Design, Summer B 2026**.
+
+## Team Members
+
+- Erica Cheng
+- Jiayun Pan
+
+## User Personas
+
+CoopTrack's Phase 3 implementation focuses on three personas:
+
+- **Sofia — Student:** discovers positions, saves opportunities, tracks applications,
+  and monitors deadlines.
+- **Marcus — Employer:** manages position listings, reviews applicants, and tracks the
+  hiring pipeline.
+- **Nikki — System Administrator:** verifies employers, reviews reported positions,
+  manages students, and maintains skill data.
+
+The landing page uses buttons to simulate signing in as each persona. CoopTrack does
+not implement account creation or real authentication.
+
+## Technology Stack
+
+- **Frontend:** Streamlit
+- **REST API:** Flask with Blueprints
+- **Database:** MySQL 9
+- **Infrastructure:** Docker and Docker Compose
+- **Languages:** Python and SQL
+
+## Architecture
+
+```text
+Streamlit UI  <---- HTTP/JSON ---->  Flask REST API  <---- SQL ---->  MySQL
+   :8501                              :4000                          :3200
+```
+
+The application is divided into three Docker services:
+
+| Service | Container | Purpose | Host URL/Port |
+| --- | --- | --- | --- |
+| `app` | `web-app` | Streamlit frontend | <http://localhost:8501> |
+| `api` | `web-api` | Flask REST API | <http://localhost:4000> |
+| `db` | `mysql_db` | MySQL database | `localhost:3200` |
+
+## Repository Structure
+
+```text
+CoopTrack/
+├── api/                    # Flask API, Blueprints, and database connection
+│   ├── backend/
+│   ├── .env.template      # Safe environment-variable template
+│   └── backend_app.py
+├── app/src/                # Streamlit application
+│   ├── assets/             # CoopTrack branding
+│   ├── modules/            # Shared navigation and UI helpers
+│   ├── pages/              # Persona dashboards and feature pages
+│   └── Home.py             # Persona-selection landing page
+├── database-files/
+│   ├── 01_schema.sql       # Database schema; runs first
+│   └── 02_sample_data.sql  # Demonstration data; runs second
+├── docker-compose.yaml
+└── README.md
+```
 
 ## Prerequisites
 
-See [docs/PreReq.md](docs/PreReq.md) for full setup instructions, including Python environment setup with Anaconda/Miniconda or the standard Python virtual environment tool, required tools, and IDE configuration.
+Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+Confirm that both Docker commands are available:
 
-A full index of the project documentation is in [docs/README.md](docs/README.md).
+```bash
+docker --version
+docker compose version
+```
 
-## Structure of the Repo
+## Environment Configuration
 
-- This repository is organized into six main directories:
-  - `./app` - the Streamlit app
-  - `./api` - the Flask REST API
-  - `./database-files` - SQL scripts to initialize the MySQL database
-  - `./datasets` - folder for storing datasets
-  - `./ml-src` - folder for ML model development (Jupyter notebooks, training scripts)
-  - `./docs` - project documentation
+The real environment file is intentionally excluded from Git. Create it from the
+provided template:
 
-- The repo also contains a `docker-compose.yaml` file that is used to set up the Docker containers for the front end app, the REST API, and MySQL database.
+```bash
+cd api
+cp .env.template .env
+```
 
-## Suggestion for Learning the Project Code Base
+Then open `api/.env` and replace the values inside angle brackets:
 
-If you are not familiar with web app development, this code base might be confusing. But don't worry, we'll get through it together. Here are some suggestions for learning the code base:
+```dotenv
+SECRET_KEY=<replace-with-a-random-secret>
+DB_USER=root
+DB_HOST=db
+DB_PORT=3306
+DB_NAME=cooptrack
+MYSQL_ROOT_PASSWORD=<replace-with-a-strong-password>
+```
 
-1. Start by exploring the `./app` directory. This is where the Streamlit app is located. The Streamlit app is a Python-based web app that is used to interact with the user. It's a great way to build a simple web app without having to learn a lot of web development.
-1. Next, explore the `./api` directory. This is where the Flask REST API is located. The REST API is used to interact with the database and perform other server-side tasks. You might also consider this the "application logic" or "business logic" layer of your app.
-1. Finally, explore the `./database-files` directory. This is where the SQL scripts are located that will be used to initialize the MySQL database.
-1. Bonus: If you want a totally separate copy of the template repo on your laptop to explore and experiment with without affecting your team repo, see the *Setting Up a Personal Sandbox Repo* section in [docs/RepoSetup.md](docs/RepoSetup.md).
+The angle brackets are placeholders and should not remain in the finished `.env`
+file. `SECRET_KEY` may be any long random string. Do not commit `api/.env` or expose
+its passwords in screenshots.
 
-## Setting Up the Repos
+## Start the Application
 
-See [docs/RepoSetup.md](docs/RepoSetup.md) for full instructions on forking and configuring the team repo, setting up the `.env` file, and running the Docker containers. An optional section there also covers setting up a personal sandbox repo for individual experimentation.
+From the repository root, build and start all three services:
 
-## Important Tips
+```bash
+docker compose up -d --build
+```
 
-See [docs/ImportantTips.md](docs/ImportantTips.md) for tips on hot reloading, recovering from container crashes, and working with the MySQL container — including why you need the `-v` flag to pick up changes to your SQL files.
+Check that the services are running:
 
-## Handling User Role Access and Control
+```bash
+docker compose ps
+```
 
-This project uses a simple Role-based Access Control (RBAC) system implemented in Streamlit. The template ships with example roles (*Political Strategist*, *USAID Worker*, *System Administrator*) to illustrate the pattern — **your team will replace these with the personas specific to your project**. You will define four personas and implement three of them.
+Then open:
 
-See [docs/RBAC.md](docs/RBAC.md) for a full explanation of how the RBAC system works and step-by-step instructions for adapting it to your own roles.
+- Streamlit application: <http://localhost:8501>
+- Flask API: <http://localhost:4000>
+- MySQL from a database client: host `localhost`, port `3200`, database `cooptrack`
 
-## Changing How the App Looks
+To follow service logs:
 
-The app's colors, fonts, and sidebar styling all come from `app/src/.streamlit/config.toml` — there is no CSS to edit. Save the file and the running app picks the change up; refresh the browser tab if you don't see it.
+```bash
+docker compose logs -f app api db
+```
 
-See [docs/Theming.md](docs/Theming.md) for what each setting does and how to build your own palette.
+To stop the services without deleting the database volume:
 
-## (Completely Optional) Incorporating ML Models into your Project
+```bash
+docker compose down
+```
 
-**This is entirely optional. No part of the project requires a machine learning model, and you are not expected to build one.** The template simply happens to include the plumbing for a hypothetical model, described below, in case your team is curious and has spare time. Skipping this section costs you nothing.
+## Database Initialization and Sample Data
 
-The model shipped in `api/backend/ml_models/model01.py` is a *fake* placeholder — it reads coefficients out of the `model1_params` table and computes a dot product. It is there to show the wiring, not to make real predictions.
+When MySQL creates a new database volume, it automatically executes every `.sql`
+file in `database-files/` in alphabetical order. CoopTrack therefore loads:
 
-If you do want to explore it:
+1. `01_schema.sql` — creates the `cooptrack` schema and tables.
+2. `02_sample_data.sql` — inserts realistic, foreign-key-valid demonstration data.
 
-1. Collect and preprocess necessary datasets for your models.
-1. Build, train, and test your model in a Jupyter Notebook.
-   - You can store your datasets in the `datasets` folder and your notebook in the `ml-src` folder.
-1. Once your team is happy with the model's performance, convert your notebook code to a pure Python script.
-   - You can include the `training` and `testing` functionality as well as the `prediction` functionality.
-   - Develop and test this pure Python script first in the `ml-src` folder.
-1. Review the `api/backend/ml_models` module. **Important**: you would never want to hard code the model parameter weights directly in the prediction function — store them in the database, as `model01.py` does.
-1. The prediction route for the REST API is in `api/backend/simple/simple_routes.py`. It accepts two URL parameters and passes them to the `predict` function in the `ml_models` module, then packages the result back to Streamlit as JSON.
-1. Back in Streamlit, check out `app/src/pages/11_Prediction.py`. Two numeric input fields are created; when the button is pressed, it makes a request to the REST API at `/prediction/{var_01}/{var_02}` and displays the results.
+Restarting an existing container does **not** rerun these files. After changing the
+schema or sample data, recreate the MySQL volume:
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+> **Warning:** `docker compose down -v` deletes the current Docker database volume.
+> Use it only when the database should be rebuilt from the SQL initialization files.
+
+## Using the Streamlit Application
+
+Open <http://localhost:8501> and select one of the sample personas:
+
+1. **Continue as Sofia** for the student dashboard.
+2. **Continue as Marcus** for the employer dashboard.
+3. **Continue as Nikki** for the administrator dashboard.
+
+Use **Log out** in the sidebar to return to persona selection. Persona selection,
+role-aware navigation, branding, and dashboard landing pages are implemented. The
+remaining feature pages and their Flask API integrations are under development.
+
+## Current Phase 3 Status
+
+- [x] MySQL schema
+- [x] Realistic SQL sample data
+- [x] Ordered automatic database initialization
+- [x] Streamlit persona selection and persona dashboards
+- [x] CoopTrack logo and application theme
+- [ ] Final REST API matrix
+- [ ] At least four Flask Blueprints and required routes
+- [ ] Persona feature pages connected to all API routes
+- [ ] Final integration testing
+- [ ] Pitch and demo video
+
+## Troubleshooting
+
+### `zsh: command not found: docker`
+
+Install Docker Desktop, open it, and wait until the Docker engine reports that it is
+running. Then open a new terminal and rerun `docker --version`.
+
+### `ModuleNotFoundError: No module named 'flask'`
+
+The recommended setup runs Flask inside Docker. Run `docker compose up -d --build`
+instead of launching `api/backend_app.py` with a system Python installation.
+
+### Database changes are not appearing
+
+The SQL initialization scripts only execute for a new MySQL volume. Recreate it with
+`docker compose down -v`, then run `docker compose up -d --build`.
+
+### Inspect service errors
+
+```bash
+docker compose ps
+docker compose logs --tail=100 app api db
+```
+
+## Demo Video
+
+The required public 6–8 minute pitch and demo video will be linked here before the
+Phase 3 submission.
+
+**Public video link:** Coming soon.
