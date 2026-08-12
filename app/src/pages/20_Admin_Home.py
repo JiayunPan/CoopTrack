@@ -20,6 +20,7 @@ try:
     employers = get("/admin/employers")
     placements = get("/admin/placements")
     skill_demand = get("/skills/demand")
+    applications = get("/applications")
 except ApiError as error:
     st.error(str(error))
     st.stop()
@@ -29,7 +30,7 @@ metric_one, metric_two, metric_three, metric_four = st.columns(4)
 metric_one.metric("Pending reports", len(reports))
 metric_two.metric("Employers to verify", len(pending_employers))
 metric_three.metric("Recruiting terms", len(placements))
-metric_four.metric("Tracked skills", len(skill_demand))
+metric_four.metric("Total applications", len(applications))
 
 st.subheader("Placement analytics")
 placement_frame = pd.DataFrame(placements)

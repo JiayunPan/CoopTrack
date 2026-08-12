@@ -63,6 +63,15 @@ if applications:
     }
     with st.expander("Update an application status"):
         selected_application = st.selectbox("Application", application_labels, key="update_application")
+        selected_application_id = application_labels[selected_application]
+        try:
+            application_detail = get(f"/applications/{selected_application_id}")
+            st.caption(
+                f"{application_detail['company_name']} · "
+                f"Submitted {application_detail['submitted_date']}"
+            )
+        except ApiError as error:
+            st.error(str(error))
         new_status = st.selectbox(
             "New status",
             ["SUBMITTED", "SCREENING", "INTERVIEW", "OFFER", "ACCEPTED", "REJECTED"],
@@ -70,7 +79,7 @@ if applications:
         if st.button("Update status"):
             try:
                 put(
-                    f"/applications/{application_labels[selected_application]}",
+                    f"/applications/{selected_application_id}",
                     {"application_status": new_status},
                 )
                 st.success("Application status updated.")

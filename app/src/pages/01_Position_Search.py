@@ -52,6 +52,17 @@ with st.container(border=True):
         }
         selected_label = st.selectbox("Position", labels)
         position_id = labels[selected_label]
+        try:
+            position_detail = get(f"/positions/{position_id}")
+        except ApiError as error:
+            st.error(str(error))
+            position_detail = None
+        if position_detail:
+            st.write(position_detail.get("description") or "No description provided.")
+            st.caption(
+                f"{position_detail.get('work_mode') or 'Mode not set'} · "
+                f"{position_detail.get('employment_type') or 'Type not set'}"
+            )
         save_col, remove_col = st.columns(2)
         if save_col.button("Save position", type="primary", width="stretch"):
             try:

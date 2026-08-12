@@ -72,6 +72,14 @@ with skill_tab:
         skill_labels = {f"#{row['skill_id']} · {row['skill_name']}": row for row in skills}
         skill_label = st.selectbox("Skill", skill_labels)
         selected_skill = skill_labels[skill_label]
+        try:
+            skill_detail = get(f"/skills/{selected_skill['skill_id']}")
+            st.caption(
+                f"Current API record: {skill_detail['skill_name']} "
+                f"({skill_detail['skill_status']})"
+            )
+        except ApiError as error:
+            st.error(str(error))
         renamed = st.text_input("Canonical name", value=selected_skill["skill_name"])
         skill_status = st.selectbox(
             "Skill status",
