@@ -1,9 +1,9 @@
-"""Student shell for discovering and saving co-op positions."""
+"""Student position discovery and shortlist management."""
 
 import pandas as pd
 import streamlit as st
 
-from modules.mock_data import OPEN_POSITIONS
+from modules.api_client import ApiError, delete, get, post
 from modules.nav import SideBarLinks, require_role
 
 
@@ -11,28 +11,73 @@ st.set_page_config(page_title="Find Positions · CoopTrack", page_icon="🔎", l
 require_role("student")
 SideBarLinks()
 
+student_id = st.session_state["user_id"]
 st.title("Find and save positions")
-st.caption("Student feature shell · REST API integration pending")
 
-query_col, location_col, mode_col = st.columns([2, 1, 1])
-query = query_col.text_input("Keywords", placeholder="SQL, data analyst, Python…")
-location = location_col.selectbox("Location", ["All locations", "Boston, MA", "Cambridge, MA", "Somerville, MA", "Remote"])
-mode = mode_col.selectbox("Work mode", ["All modes", "On-site", "Hybrid", "Remote"])
+query_col, location_col, skill_col = st.columns([2, 1, 1])
+role = query_col.text_input("Role keywords", placeholder="Data analyst, software…")
+location = location_col.text_input("Location", placeholder="Boston")
+skill = skill_col.text_input("Required skill", placeholder="Python")
 
-positions = pd.DataFrame(OPEN_POSITIONS)
-if query:
-    mask = positions.astype(str).apply(lambda column: column.str.contains(query, case=False)).any(axis=1)
-    positions = positions[mask]
-if location != "All locations":
-    positions = positions[positions["Location"] == location]
-if mode != "All modes":
-    positions = positions[positions["Mode"] == mode]
+params = {"status": "OPEN"}
+if role:
+    params["role"] = role
+if location:
+    params["location"] = location
+if skill:
+    params["skill"] = skill
+
+try:
+    with st.spinner("Loading open positions…"):
+        positions = get("/positions", params=params)
+except ApiError as error:
+    st.error(str(error))
+    st.stop()
 
 st.metric("Matching open positions", len(positions))
-st.dataframe(positions, width="stretch", hide_index=True)
+if positions:
+    st.dataframe(pd.DataFrame(positions), width="stretch", hide_index=True)
+else:
+    st.info("No open positions match these filters.")
 
+saved_positions = st.session_state.setdefault("saved_position_ids", set())
 with st.container(border=True):
-    st.subheader("Save an opportunity")
-    st.selectbox("Position", [row["Position"] for row in OPEN_POSITIONS])
-    st.button("Save position", type="primary", disabled=True)
-    st.caption("This action will be enabled when the save-position POST route is connected.")
+    st.subheader("Shortlist actions")
+    if not positions:
+        st.caption("A matching position is required before it can be saved.")
+    else:
+        labels = {
+            f"{row['position_title']} — {row['company_name']}": row["position_id"]
+            for row in positions
+        }
+        selected_label = st.selectbox("Position", labels)
+        position_id = labels[selected_label]
+        try:
+            position_detail = get(f"/positions/{position_id}")
+        except ApiError as error:
+            st.error(str(error))
+            position_detail = None
+        if position_detail:
+            st.write(position_detail.get("description") or "No description provided.")
+            st.caption(
+                f"{position_detail.get('work_mode') or 'Mode not set'} · "
+                f"{position_detail.get('employment_type') or 'Type not set'}"
+            )
+        save_col, remove_col = st.columns(2)
+        if save_col.button("Save position", type="primary", width="stretch"):
+            try:
+                post(f"/students/{student_id}/saved", {"position_id": position_id})
+                saved_positions.add(position_id)
+                st.success("Position saved to your shortlist.")
+            except ApiError as error:
+                st.error(str(error))
+        if remove_col.button("Remove saved position", width="stretch"):
+            try:
+                delete(f"/students/{student_id}/saved/{position_id}")
+                saved_positions.discard(position_id)
+                st.success("Position removed from your shortlist.")
+            except ApiError as error:
+                st.error(str(error))
+
+if saved_positions:
+    st.caption(f"Saved during this session: {len(saved_positions)} position(s)")

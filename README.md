@@ -55,6 +55,7 @@ The application is divided into three Docker services:
 CoopTrack/
 ├── api/                    # Flask API, Blueprints, and database connection
 │   ├── backend/
+│   ├── tests/              # End-to-end API integration test
 │   ├── .env.template      # Safe environment-variable template
 │   └── backend_app.py
 ├── app/src/                # Streamlit application
@@ -65,6 +66,7 @@ CoopTrack/
 ├── database-files/
 │   ├── 01_schema.sql       # Database schema; runs first
 │   └── 02_sample_data.sql  # Demonstration data; runs second
+├── docs/                   # API matrix, route list, and testing guide
 ├── docker-compose.yaml
 └── README.md
 ```
@@ -85,8 +87,7 @@ The real environment file is intentionally excluded from Git. Create it from the
 provided template:
 
 ```bash
-cd api
-cp .env.template .env
+cp api/.env.template api/.env
 ```
 
 Then open `api/.env` and replace the values inside angle brackets:
@@ -110,6 +111,12 @@ From the repository root, build and start all three services:
 
 ```bash
 docker compose up -d --build
+```
+
+After the first build, the requirement's shorter command also starts all services:
+
+```bash
+docker compose up -d
 ```
 
 Check that the services are running:
@@ -164,8 +171,37 @@ Open <http://localhost:8501> and select one of the sample personas:
 3. **Continue as Nikki** for the administrator dashboard.
 
 Use **Log out** in the sidebar to return to persona selection. Persona selection,
-role-aware navigation, branding, and dashboard landing pages are implemented. The
-remaining feature pages and their Flask API integrations are under development.
+role-aware navigation, branding, dashboards, and all nine feature pages are
+implemented. Every feature page communicates with MySQL through the Flask API;
+the Streamlit application never connects directly to the database.
+
+## REST API
+
+CoopTrack implements **29 routes** across five Flask Blueprints:
+
+| Blueprint | Routes | Primary responsibility |
+| --- | ---: | --- |
+| `students` | 6 | Profiles, applications, saved positions, account status |
+| `positions` | 7 | Search, details, applicants, counts, and posting management |
+| `applications` | 5 | Submission, details, status updates, and withdrawal |
+| `skills` | 6 | Skill taxonomy and demand analytics |
+| `admin` | 5 | Reports, employer verification, and placement analytics |
+
+The API uses GET, POST, PUT, and DELETE. See
+[the REST API matrix](docs/CoopTrack_REST_API_Matrix.md) and
+[route list](docs/CoopTrack_Route_List.md) for the complete contract.
+
+## Testing
+
+The reproducible test process is documented in [docs/Testing.md](docs/Testing.md).
+With all containers running, execute the API integration test with:
+
+```bash
+python3 api/tests/integration_test.py
+```
+
+A verified clean build contains 18 tables and 1,288 sample rows. All 29 planned API
+routes and all 12 persona dashboards/feature pages passed integration/runtime tests.
 
 ## Current Phase 3 Status
 
@@ -175,9 +211,10 @@ remaining feature pages and their Flask API integrations are under development.
 - [x] Streamlit persona selection and persona dashboards
 - [x] CoopTrack logo and application theme
 - [x] Final REST API matrix
-- [ ] At least four Flask Blueprints and required routes
-- [ ] Persona feature pages connected to all API routes
-- [ ] Final integration testing
+- [x] Five Flask Blueprints and 29 routes
+- [x] Nine persona feature pages connected to all API routes
+- [x] Final clean-volume Docker integration testing
+- [x] Unused project-template code removed
 - [ ] Pitch and demo video
 
 ## Troubleshooting

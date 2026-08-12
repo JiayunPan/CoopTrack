@@ -7,7 +7,7 @@ positions = Blueprint("positions", __name__)
 
 
 # GET /positions  — search / list open positions
-# Optional query params: role, location, skill, status
+# Optional query params: role, location, skill, status, employer_id
 @positions.route("/positions", methods=["GET"])
 def get_all_positions():
     cursor = get_db().cursor(dictionary=True)
@@ -17,9 +17,10 @@ def get_all_positions():
         location = request.args.get("location")
         skill = request.args.get("skill")
         status = request.args.get("status")
+        employer_id = request.args.get("employer_id", type=int)
 
         query = (
-            "SELECT DISTINCT p.position_id, p.position_title, e.company_name, "
+            "SELECT DISTINCT p.position_id, p.employer_id, p.position_title, e.company_name, "
             "p.location, p.work_mode, p.employment_type, p.position_status, "
             "p.application_deadline "
             "FROM position p "
@@ -41,6 +42,9 @@ def get_all_positions():
         if status:
             query += " AND p.position_status = %s"
             params.append(status)
+        if employer_id is not None:
+            query += " AND p.employer_id = %s"
+            params.append(employer_id)
         query += " ORDER BY p.application_deadline"
 
         cursor.execute(query, params)
