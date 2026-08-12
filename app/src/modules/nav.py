@@ -11,8 +11,7 @@ ROLE_HOME_PAGES = {
 
 ROLE_FEATURE_PAGES = {
     "student": [
-        ("pages/01_Position_Search.py", "Find positions", "🔎"),
-        ("pages/02_Application_Tracker.py", "Application tracker", "📋"),
+        ("pages/91_Position_Search_JP.py", "Find positions", "🔎"),
         ("pages/03_Upcoming_Deadlines.py", "Upcoming deadlines", "📅"),
     ],
     "employer": [
