@@ -65,6 +65,26 @@ def get_student_applications(student_id):
     finally:
         cursor.close()
 
+# GET /students/<id>/saved  — list a student's saved (shortlisted) positions
+@students.route("/students/<int:student_id>/saved", methods=["GET"])
+def get_saved_positions(student_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT p.position_id, p.position_title, e.company_name, "
+            "p.location, p.work_mode, p.employment_type, p.position_status "
+            "FROM saved_position sp "
+            "JOIN position p ON p.position_id = sp.position_id "
+            "JOIN employer e ON e.employer_id = p.employer_id "
+            "WHERE sp.student_id = %s "
+            "ORDER BY p.position_title",
+            (student_id,),
+        )
+        return jsonify(cursor.fetchall()), 200
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
 
 # POST /students/<id>/saved  — save a position to the shortlist
 @students.route("/students/<int:student_id>/saved", methods=["POST"])

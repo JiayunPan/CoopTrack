@@ -38,13 +38,14 @@ with search_col:
         st.markdown("### 🔎 Find opportunities")
         st.write("Search open co-op positions by role, location, and required skills, then save the best matches.")
         if st.button("Open position search", type="primary", width="stretch"):
-            st.switch_page("pages/91_Position_Search_JP.py")
+            st.switch_page("pages/01_Position_Search.py")
 
 with tracker_col:
     with st.container(border=True):
         st.markdown("### 📋 Track applications")
         st.write("Submit applications and keep screening, interview, offer, and decision statuses current.")
-        st.button("Application tracker coming soon", width="stretch", disabled=True)
+        if st.button("Open application tracker", type="primary", width="stretch"):
+            st.switch_page("pages/02_Application_Tracker.py")
 
 with deadline_col:
     with st.container(border=True):
