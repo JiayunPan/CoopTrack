@@ -246,4 +246,4 @@ docker compose logs --tail=100 app api db
 The required public 6–8 minute pitch and demo video will be linked here before the
 Phase 3 submission.
 
-**Public video link:** <video controls src="https://www.dropbox.com/scl/fi/5g73bw8vs5qsj7f1mlc2b/Demo.mp4?rlkey=clji8pvzffjrq2lqdr9u60bqq&st=atxa6pyb&dl=0" title="Coming soon"></video>.
+**Public video link:** [CoopTrack Demo Video](https://www.dropbox.com/scl/fi/5g73bw8vs5qsj7f1mlc2b/Demo.mp4?rlkey=clji8pvzffjrq2lqdr9u60bqq&st=atxa6pyb&dl=0)
