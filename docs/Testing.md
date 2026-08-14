@@ -68,9 +68,9 @@ require an explicit confirmation when appropriate.
 
 ## Verified Baseline
 
-The final local verification on August 12, 2026 produced:
+The final clean-volume verification on August 14, 2026 produced:
 
-- 29/29 planned API routes passing integration tests
+- 30/30 planned API routes passing integration tests
 - 12/12 persona dashboards and feature pages loading without runtime exceptions
 - 18 database tables loaded automatically
 - 1,288 sample rows loaded automatically

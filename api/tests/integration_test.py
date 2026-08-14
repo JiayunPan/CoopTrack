@@ -34,7 +34,7 @@ def call(method: str, path: str, payload=None, expected=(200,)):
     return data
 
 
-# students: 6 routes
+# students: 7 routes
 students = call("GET", "/students")
 student_id = students[0]["student_id"]
 student = call("GET", f"/students/{student_id}")
@@ -93,8 +93,10 @@ count = call("GET", f"/positions/{position_id}/count")
 assert count["application_count"] == 0
 call("PUT", f"/positions/{position_id}", {"position_title": "Updated Integration Test Co-op"})
 
-# saved-position POST and DELETE complete the student blueprint
+# saved-position GET, POST, and DELETE complete the student blueprint
 call("POST", f"/students/{student_id}/saved", {"position_id": position_id}, expected=(201,))
+saved_positions = call("GET", f"/students/{student_id}/saved")
+assert any(saved["position_id"] == position_id for saved in saved_positions)
 call("DELETE", f"/students/{student_id}/saved/{position_id}")
 
 # applications: 5 routes
@@ -140,4 +142,4 @@ call("POST", "/applications", {}, expected=(400,))
 call("PUT", "/applications/999999", {"application_status": "NOT_A_STATUS"}, expected=(400,))
 call("DELETE", "/skills/999999", expected=(404,))
 
-print("\nAll 29 planned CoopTrack routes and representative errors passed.")
+print("\nAll 30 planned CoopTrack routes and representative errors passed.")

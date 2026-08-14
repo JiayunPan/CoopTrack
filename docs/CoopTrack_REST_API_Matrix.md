@@ -9,7 +9,7 @@ the user story that uses it.
 | `/students` | List all students (Nikki) | — | — | — |
 | `/students/<id>` | One student's profile (Sofia, Nikki) | — | Suspend/reactivate a student — 3.1 (Nikki) | — |
 | `/students/<id>/applications` | A student's applications — 1.x (Sofia) | — | — | — |
-| `/students/<id>/saved` | — | Save a position to shortlist — 1.2 (Sofia) | — | — |
+| `/students/<id>/saved` | List a student's saved positions — 1.2 (Sofia) | Save a position to shortlist — 1.2 (Sofia) | — | — |
 | `/students/<id>/saved/<pid>` | — | — | — | Remove a saved position — 1.5 (Sofia) |
 | `/positions` | Search/list open positions — 1.1, 1.6 (Sofia) | Post a new position — 2.1 (Marcus) | — | — |
 | `/positions/<id>` | Position details (Sofia, Marcus) | — | Edit/close a position — 2.4, 2.5 (Marcus) | Remove a posting — 3.2 (Nikki) |
@@ -28,6 +28,6 @@ the user story that uses it.
 ## Summary
 
 - **5 Flask Blueprints:** `students`, `positions`, `applications`, `skills`, `admin`
-- **29 routes total** — GET 15, POST 5, PUT 5, DELETE 4
+- **30 routes total** — GET 16, POST 5, PUT 5, DELETE 4
 - Every Blueprint has ≥5 routes and at most one of each write verb (POST/PUT/DELETE)
 - Meets: ≥4 Blueprints, ≥2 POST, ≥2 PUT, ≥2 DELETE, ~20+ routes target

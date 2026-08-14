@@ -6,7 +6,7 @@ MySQL directly.
 
 - Example base URL: `http://api:4000` (inside the container network) or
   `http://localhost:4000` (from the host)
-- 5 Blueprints, 29 routes
+- 5 Blueprints, 30 routes
 - Meets Phase 3 requirements: >=4 Blueprints, >=5 routes each,
   5 POST / 5 PUT / 4 DELETE, at most one of each write verb per Blueprint
 
@@ -19,6 +19,7 @@ MySQL directly.
 | GET | `/students` | — | Return all students |
 | GET | `/students/<student_id>` | — | Return one student's profile |
 | GET | `/students/<student_id>/applications` | 1.x | All applications by a student |
+| GET | `/students/<student_id>/saved` | 1.2 | Return the student's saved-position shortlist |
 | POST | `/students/<student_id>/saved` | 1.2 | Save a position to the shortlist |
 | DELETE | `/students/<student_id>/saved/<position_id>` | 1.5 | Remove a saved position |
 | PUT | `/students/<student_id>` | 3.1 | Suspend / reactivate a student (admin) |
@@ -72,7 +73,7 @@ MySQL directly.
 
 **Sofia / Student pages**
 - Position Search: `GET /positions`
-- Save / Remove Position: `POST /students/<id>/saved`, `DELETE /students/<id>/saved/<pid>`
+- Saved Positions: `GET /students/<id>/saved`, `POST /students/<id>/saved`, `DELETE /students/<id>/saved/<pid>`
 - Application Tracker: `GET /students/<id>/applications`, `POST /applications`, `PUT /applications/<id>`
 - Upcoming Deadlines: `GET /positions` (filtered by deadline)
 
@@ -89,6 +90,6 @@ MySQL directly.
 - Student Management: `PUT /students/<id>` (suspend)
 - Skill Management: `GET /skills`, `POST /skills`, `DELETE /skills/<id>`
 
-> Note: `DELETE /positions/<id>`, `GET /skills/demand`, and `GET /admin/placements`
-> must also be used by at least one page (Phase 3 requires every route to be
-> called by the UI). These fit on the Admin moderation page / dashboard.
+`DELETE /positions/<id>`, `GET /skills/demand`, and `GET /admin/placements`
+are used by the Admin moderation page and dashboard. Every listed API route has
+at least one Streamlit consumer.
