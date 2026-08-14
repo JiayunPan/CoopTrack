@@ -38,12 +38,12 @@ must remain on camera for the entire recording and contribute meaningfully.
 1. Show the top-level repository structure.
 2. Briefly show the REST API matrix.
 3. Show the five Blueprint folders:
-   - `students` — 6 routes
+   - `students` — 7 routes
    - `positions` — 7 routes
    - `applications` — 5 routes
    - `skills` — 6 routes
    - `admin` — 5 routes
-4. State that the 29 routes use GET, POST, PUT, and DELETE.
+4. State that the 30 routes use GET, POST, PUT, and DELETE.
 5. Show `rest_entry.py` registering all five Blueprints.
 6. Explain that Streamlit calls Flask through HTTP/JSON and never connects directly
    to MySQL.

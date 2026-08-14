@@ -36,10 +36,11 @@ with st.form("register_verified_employer"):
     submitted = st.form_submit_button(
         "Register and verify employer",
         type="primary",
-        disabled=not confirmed,
     )
 if submitted:
-    if not company_name.strip() or not email.strip():
+    if not confirmed:
+        st.error("Confirm that the organization's information has been verified.")
+    elif not company_name.strip() or not email.strip():
         st.error("Company name and email are required.")
     else:
         try:

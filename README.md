@@ -177,11 +177,11 @@ the Streamlit application never connects directly to the database.
 
 ## REST API
 
-CoopTrack implements **29 routes** across five Flask Blueprints:
+CoopTrack implements **30 routes** across five Flask Blueprints:
 
 | Blueprint | Routes | Primary responsibility |
 | --- | ---: | --- |
-| `students` | 6 | Profiles, applications, saved positions, account status |
+| `students` | 7 | Profiles, applications, saved positions, account status |
 | `positions` | 7 | Search, details, applicants, counts, and posting management |
 | `applications` | 5 | Submission, details, status updates, and withdrawal |
 | `skills` | 6 | Skill taxonomy and demand analytics |
@@ -200,7 +200,7 @@ With all containers running, execute the API integration test with:
 python3 api/tests/integration_test.py
 ```
 
-A verified clean build contains 18 tables and 1,288 sample rows. All 29 planned API
+A verified clean build contains 18 tables and 1,288 sample rows. All 30 planned API
 routes and all 12 persona dashboards/feature pages passed integration/runtime tests.
 
 ## Current Phase 3 Status
@@ -211,7 +211,7 @@ routes and all 12 persona dashboards/feature pages passed integration/runtime te
 - [x] Streamlit persona selection and persona dashboards
 - [x] CoopTrack logo and application theme
 - [x] Final REST API matrix
-- [x] Five Flask Blueprints and 29 routes
+- [x] Five Flask Blueprints and 30 routes
 - [x] Nine persona feature pages connected to all API routes
 - [x] Final clean-volume Docker integration testing
 - [x] Unused project-template code removed
